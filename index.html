@@ -82,7 +82,7 @@
 
         ele.draggable = true;
         ele.ondragstart = function (e) {
-
+            this.style.visibility = 'hidden'
             g1list.forEach(function (ele) {
                 ele.style.transition = '1s';
             })
@@ -121,6 +121,7 @@
             } else {
                 before(moveEle, enterEle)
             }
+            moveEle.style.visibility = 'visible'
             g1list.forEach(function (ele) {
                 ele.style.transition = '0s';
                 ele.style.transform = 'translateY(0px)'
