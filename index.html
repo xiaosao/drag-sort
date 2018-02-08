@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            height: 40px;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .group1 {
+            width: 200px;
+            float: left;
+        }
+
+        .group1 li {
+            background-color: #ddd;
+        }
+
+        .group2 {
+            width: 200px;
+            float: right;
+        }
+
+        .group2 li {
+            background-color: hotpink;
+        }
+    </style>
+</head>
+
+<body>
+    <ul class="group1">
+        <li>group1 1 </li>
+        <li>group1 2 </li>
+        <li>group1 3 </li>
+        <li>group1 4 </li>
+        <li>group1 5 </li>
+        <li>group1 6 </li>
+        <li>group1 7 </li>
+    </ul>
+    <ul class="group2">
+        <li>grop2 1 </li>
+        <li>grop2 2 </li>
+        <li>grop2 3 </li>
+        <li>grop2 4 </li>
+        <li>grop2 5 </li>
+        <li>grop2 6 </li>
+        <li>grop2 7 </li>
+    </ul>
+</body>
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+
+<script>
+    function before(moveEle, enterEle) {
+        enterEle.parentNode.insertBefore(moveEle, enterEle)
+    }
+
+    function after(moveEle, enterEle) {
+        enterEle.parentNode.insertBefore(moveEle, enterEle.nextElementSibling)
+    }
+    var moveEle = null,
+        enterEle = null,
+        g1list = document.querySelectorAll('.group1 li');
+    g2list = document.querySelectorAll('.group2 li');
+    g1list = [].slice.call(g1list);
+    g2list = [].slice.call(g2list);
+
+    g1list.forEach(function (ele, idx) {
+        var startY = 0;
+
+        ele.draggable = true;
+        ele.ondragstart = function (e) {
+
+            g1list.forEach(function (ele) {
+                ele.style.transition = '1s';
+            })
+            g2list.forEach(function (ele) {
+                ele.style.transition = '1s';
+            })
+            moveEle = this;
+            startY = e.pageY;
+
+        }
+
+        function throttle(fn, ms) {
+            var now = Date.now()
+            return function (e) {
+                if (Date.now() - now > ms) {
+                    fn.call(this, e);
+                    now = Date.now()
+                }
+            }
+        }
+
+        ele.ondrag = throttle(function (e) {
+            if (!enterEle) return;
+            if (e.pageY > startY) {
+
+                enterEle.style.transform = `translateY(${-moveEle.offsetHeight}px)`;
+            } else {
+
+                enterEle.style.transform = `translateY(${moveEle.offsetHeight}px)`;
+            }
+        }, 200)
+        ele.ondragend = function (e) {
+            if (!enterEle) return;
+            if (e.pageY > startY) {
+                after(moveEle, enterEle)
+            } else {
+                before(moveEle, enterEle)
+            }
+            g1list.forEach(function (ele) {
+                ele.style.transition = '0s';
+                ele.style.transform = 'translateY(0px)'
+
+            })
+            g2list.forEach(function (ele) {
+                ele.style.transition = '0s';
+                ele.style.transform = 'translateY(0px)'
+
+            })
+            moveEle = null;
+            enterEle = null;
+        }
+        ele.ondragover = function (e) {
+            e.preventDefault()
+        }
+        ele.ondragenter = function (e) {
+            if (this === moveEle) return;
+            enterEle = this;
+        }
+    })
+    g2list.forEach(function (ele, idx) {
+        var startY = 0;
+        ele.draggable = true;
+        ele.ondragstart = function (e) {
+
+            g1list.forEach(function (ele) {
+                ele.style.transition = '1s';
+            })
+            g2list.forEach(function (ele) {
+                ele.style.transition = '1s';
+            })
+            moveEle = this;
+            startY = e.pageY;
+
+        }
+
+        function throttle(fn, ms) {
+            var now = Date.now()
+            return function (e) {
+                if (Date.now() - now > ms) {
+                    fn.call(this, e);
+                    now = Date.now()
+                }
+            }
+        }
+
+        ele.ondrag = throttle(function (e) {
+            if (!enterEle) return;
+            if (e.pageY > startY) {
+
+                enterEle.style.transform = `translateY(${-moveEle.offsetHeight}px)`;
+            } else {
+
+                enterEle.style.transform = `translateY(${moveEle.offsetHeight}px)`;
+            }
+        }, 200)
+        ele.ondragend = function (e) {
+            if (!enterEle) return;
+            if (e.pageY > startY) {
+                after(moveEle, enterEle)
+            } else {
+                before(moveEle, enterEle)
+            }
+            g1list.forEach(function (ele) {
+                ele.style.transition = '0s';
+                ele.style.transform = 'translateY(0px)'
+
+            })
+            g2list.forEach(function (ele) {
+                ele.style.transition = '0s';
+                ele.style.transform = 'translateY(0px)'
+
+            })
+            moveEle = null;
+            enterEle = null;
+        }
+        ele.ondragover = function (e) {
+            e.preventDefault()
+        }
+        ele.ondragenter = function (e) {
+            if (this === moveEle) return;
+            enterEle = this;
+        }
+    })
+
+
+
+
+    //     document.querySelector('.group2').ondrop = function (e) {
+    //         this.appendChild(moveEle)
+    //     }
+
+    //     document.querySelector('.group2').ondragenter = function (e) {
+    //     }
+    //     document.querySelector('.group2').ondragover = function (e) {
+    //         e.preventDefault();
+    //     }
+    //
+</script>
+
+</html>
