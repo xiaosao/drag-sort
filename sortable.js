@@ -43,7 +43,7 @@ class Sortable {
             dragIndex = this.index;
         });
 
-
+        var index = 0;
         util._on(container, 'dragenter', 'li', function () {
 
             if (this === self.dragEle) return;
@@ -52,7 +52,10 @@ class Sortable {
             if (this.flag === false) {
                 this.style.transform = `translateY(0)`;
                 this.flag = true;
-                movePosition = movePosition === 'down' ? 'up' : 'down'
+                if (index === 0) {
+                    movePosition = movePosition === 'down' ? 'up' : 'down';
+                }
+                index++;
             } else {
                 if (dragIndex < enterIndex) {
                     this.style.transform = `translateY(-${self.dragEle.offsetHeight}px)`;
@@ -63,7 +66,11 @@ class Sortable {
                     this.flag = false;
                     movePosition = 'up';
                 }
+                index = 0;
             }
+
+            console.log(self.enterEle);
+
         })
 
         util._on(container, 'dragend', 'li', function () {
