@@ -60,9 +60,9 @@
         <li>grop2 7 </li>
     </ul>
 </body>
-<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 
 <script>
+
     function before(moveEle, enterEle) {
         enterEle.parentNode.insertBefore(moveEle, enterEle)
     }
@@ -79,12 +79,12 @@
 
     g1list.forEach(function (ele, idx) {
         var startY = 0;
-
         ele.draggable = true;
+
         ele.ondragstart = function (e) {
-            this.style.visibility = 'hidden'
+            // this.style.opacity = '0';
             g1list.forEach(function (ele) {
-                ele.style.transition = '1s';
+                ele.style.transition = '.2s';
             })
             g2list.forEach(function (ele) {
                 ele.style.transition = '1s';
@@ -103,9 +103,10 @@
                 }
             }
         }
-
+        var flag = true;
         ele.ondrag = throttle(function (e) {
             if (!enterEle) return;
+
             if (e.pageY > startY) {
 
                 enterEle.style.transform = `translateY(${-moveEle.offsetHeight}px)`;
@@ -113,7 +114,7 @@
 
                 enterEle.style.transform = `translateY(${moveEle.offsetHeight}px)`;
             }
-        }, 200)
+        }, 5)
         ele.ondragend = function (e) {
             if (!enterEle) return;
             if (e.pageY > startY) {
@@ -121,11 +122,11 @@
             } else {
                 before(moveEle, enterEle)
             }
-            moveEle.style.visibility = 'visible'
+
+            moveEle.style.opacity = '1'
             g1list.forEach(function (ele) {
                 ele.style.transition = '0s';
                 ele.style.transform = 'translateY(0px)'
-
             })
             g2list.forEach(function (ele) {
                 ele.style.transition = '0s';
@@ -134,93 +135,99 @@
             })
             moveEle = null;
             enterEle = null;
+            flag = null;
         }
         ele.ondragover = function (e) {
             e.preventDefault()
         }
         ele.ondragenter = function (e) {
+
             if (this === moveEle) return;
             enterEle = this;
         }
     })
-    g2list.forEach(function (ele, idx) {
-        var startY = 0;
-        ele.draggable = true;
-        ele.ondragstart = function (e) {
+    // g2list.forEach(function (ele, idx) {
+    //     var startY = 0;
+    //     ele.draggable = true;
+    //     ele.ondragstart = function (e) {
 
-            g1list.forEach(function (ele) {
-                ele.style.transition = '1s';
-            })
-            g2list.forEach(function (ele) {
-                ele.style.transition = '1s';
-            })
-            moveEle = this;
-            startY = e.pageY;
+    //         g1list.forEach(function (ele) {
+    //             ele.style.transition = '1s';
+    //         })
+    //         g2list.forEach(function (ele) {
+    //             ele.style.transition = '1s';
+    //         })
+    //         moveEle = this;
+    //         startY = e.pageY;
 
-        }
-
-        function throttle(fn, ms) {
-            var now = Date.now()
-            return function (e) {
-                if (Date.now() - now > ms) {
-                    fn.call(this, e);
-                    now = Date.now()
-                }
-            }
-        }
-
-        ele.ondrag = throttle(function (e) {
-            if (!enterEle) return;
-            if (e.pageY > startY) {
-
-                enterEle.style.transform = `translateY(${-moveEle.offsetHeight}px)`;
-            } else {
-
-                enterEle.style.transform = `translateY(${moveEle.offsetHeight}px)`;
-            }
-        }, 200)
-        ele.ondragend = function (e) {
-            if (!enterEle) return;
-            if (e.pageY > startY) {
-                after(moveEle, enterEle)
-            } else {
-                before(moveEle, enterEle)
-            }
-            g1list.forEach(function (ele) {
-                ele.style.transition = '0s';
-                ele.style.transform = 'translateY(0px)'
-
-            })
-            g2list.forEach(function (ele) {
-                ele.style.transition = '0s';
-                ele.style.transform = 'translateY(0px)'
-
-            })
-            moveEle = null;
-            enterEle = null;
-        }
-        ele.ondragover = function (e) {
-            e.preventDefault()
-        }
-        ele.ondragenter = function (e) {
-            if (this === moveEle) return;
-            enterEle = this;
-        }
-    })
-
-
-
-
-    //     document.querySelector('.group2').ondrop = function (e) {
-    //         this.appendChild(moveEle)
     //     }
 
-    //     document.querySelector('.group2').ondragenter = function (e) {
+    //     function throttle(fn, ms) {
+    //         var now = Date.now()
+    //         return function (e) {
+    //             if (Date.now() - now > ms) {
+    //                 fn.call(this, e);
+    //                 now = Date.now()
+    //             }
+    //         }
     //     }
-    //     document.querySelector('.group2').ondragover = function (e) {
-    //         e.preventDefault();
+
+    //     ele.ondrag = throttle(function (e) {
+    //         if (!enterEle) return;
+    //         if (e.pageY > startY) {
+
+    //             enterEle.style.transform = `translateY(${-moveEle.offsetHeight}px)`;
+    //             flag = true;
+    //         } else {
+
+    //             enterEle.style.transform = `translateY(${moveEle.offsetHeight}px)`;
+    //         }
+    //     }, 200)
+    //     ele.ondragend = function (e) {
+    //         if (!enterEle) return;
+    //         if (e.pageY > startY) {
+    //             after(moveEle, enterEle)
+    //         } else {
+    //             before(moveEle, enterEle)
+    //         }
+    //         g1list.forEach(function (ele) {
+    //             ele.style.transition = '0s';
+    //             ele.style.transform = 'translateY(0px)'
+
+    //         })
+    //         g2list.forEach(function (ele) {
+    //             ele.style.transition = '0s';
+    //             ele.style.transform = 'translateY(0px)'
+
+    //         })
+    //         moveEle = null;
+    //         enterEle = null;
     //     }
-    //
+    //     ele.ondragover = function (e) {
+    //         e.preventDefault()
+    //     }
+    //     ele.ondragenter = function (e) {
+    //         if (this === moveEle) return;
+    //         enterEle = this;
+    //     }
+    // })
+
+
+
+
+    document.querySelector('.group2').ondrop = function (e) {
+        this.appendChild(moveEle)
+    }
+
+    document.querySelector('.group2').ondragenter = function (e) {}
+    document.querySelector('.group2').ondragover = function (e) {
+        e.preventDefault();
+    }
 </script>
-
+<script src="./sortable.js"></script>
+<script>
+    var sortGoup1 = new Sortable({
+        container:'.group1'
+    })
+</script>
 </html>
