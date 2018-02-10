@@ -5,45 +5,102 @@ class Sortable {
         this.dragEle = null;
         this.startY = 0;
         this.container = this.util._getEle(opt.container);
-        this.childs = this.container.children;
-        this.animateTime = opt.animateTime;
+        this.animateTime = opt.animateTime || 200;
         this.position = [];
         this.init();
     }
     init() {
-        this.caculatePosition()
+        this.caculatePosition();
         this.bindEvent();
 
     }
     bindEvent() {
         var util = this.util,
             container = this.container,
-            childs = this.childs,
-            self = this;
+            childs = this.container.children,
+            len = childs.length,
+            self = this,
+            dragIndex = 0,
+            enterIndex,
+            movePosition = '';
+
         util._each(childs, function (ele, idx) {
-            /**
-             * 获取被拖动的元素
-             * 判断被拖动的元素当前在哪个兄弟元素target上
-             * 判断被拖动元素之前位于target的上方还是下方
-             * 假设被拖动元素之前位于target的上方，那么移动的方向为往上依次移动
-             * target移动的距离为被拖动元素的高度可以刚好放置被拖动元素，后面的元素依次移动前一个元素的距离
-             */
+
+            ele.draggable = true;
+
+            ele.index = idx;
+            ele.flag = true;
+            // 获得被拖拽的元素            
             util._on(container, 'dragstart', 'li', function (e) {
+                util._each(childs, function (ele) {
+                    ele.style.transition = '.5s'
+
+                })
+                this.style.visibility = 'hidden'
                 self.dragEle = this;
+                dragIndex = this.index;
             });
 
+            util._on(container, 'drag', 'li', self.util._debounce(function () {
 
 
+            }, 10));
+
+            util._on(container, 'dragenter', 'li', function () {
+
+                if (this === self.dragEle) return;
+                if (this.flag === false) {
+                    this.style.transform = `translateY(0)`;
+                    this.flag = true;
+                    movePosition = movePosition === 'down' ? 'up' : 'down'
+                } else {
+                    if (dragIndex < enterIndex) {
+                        this.style.transform = `translateY(-${self.dragEle.offsetHeight}px)`;
+                        this.flag = false;
+                        movePosition = 'down'
+                    } else {
+                        this.style.transform = `translateY(${self.dragEle.offsetHeight}px)`;
+                        this.flag = false;
+                        movePosition = 'up';
+                    }
+                }
+
+                self.enterEle = this;
+                enterIndex = this.index;
+
+            })
+
+            util._on(container, 'dragend', 'li', function () {
+                if (movePosition === 'down') {
+                    util._after(self.dragEle, self.enterEle);
+                } else {
+                    util._before(self.dragEle, self.enterEle);
+                }
+
+                // 恢复拖拽前的状态
+                self.dragEle.style.visibility = 'visible'
+                util._each(childs, function (ele, idx) {
+                    ele.style.transition = '';
+                    ele.style.transform = 'translateY(0)';
+                    ele.index = idx;
+                    ele.flag = true;
+                })
+                self.caculatePosition()
+            })
         })
     }
 
     caculatePosition() {
         var util = this.util,
             self = this;
-        util._each(this.childs, function (ele, idx) {
-            self.position.push(ele.offsetHeight);
-            console.log(self.position);
-
+        self.position = [];
+        util._each(this.container.children, function (ele, idx) {
+            var eleHeight = ele.offsetHeight,
+                eleHeightInBox = ele.getBoundingClientRect().top - self.container.getBoundingClientRect().top;
+            eleHeight && self.position.push({
+                eleHeight,
+                eleHeightInBox
+            });
         })
     }
 }
@@ -55,7 +112,7 @@ class Util {
     }
     // 用于向下拖动时在enterEle之后插入dragEle
     _after(dragEle, enterEle) {
-        enterEle.parentNode.insertBefore(dragEle, enterEle.nextElementSibling)
+        enterEle.parentNode.insertBefore(dragEle, enterEle.nextElementSibling, )
     }
     // 节流   防止ondrag触发过于频繁
     _throttle(fn, ms, context) {
@@ -89,17 +146,14 @@ class Util {
     // iterate obj or array
     _each(iterated, fn) {
 
-        var i = iterated.length;
-        if (iterated instanceof Array) {
-            while (i--) {
-                if (!fn.call(iterated[i], iterated[i], i, iterated)) break;
-            }
-        } else {
-            for (i in iterated) {
-                // 遍历domlist对象
-                if (this._getType(iterated[i] !== 'object')) break;
-                fn.call(iterated[i], iterated[i], i)
-            }
+        var i = 0,
+            len = iterated.length;
+
+        iterated = (iterated instanceof Array) ? iterated : Array.prototype.slice.call(iterated);
+
+        while (i < len) {
+            if (fn.call(iterated[i], iterated[i], i, iterated) === false) break;
+            i++;
         }
     }
     _getEle(ele, selector) {
@@ -120,6 +174,7 @@ class Util {
                 fn.apply(ele, arguments)
             } else {
                 targetSet = self._getEle(ele, child);
+
                 if (self._has(targetSet, e.target)) {
                     fn.apply(e.target, arguments)
                 }
@@ -127,9 +182,9 @@ class Util {
         }, true)
     }
     _has(targetSet, target) {
-        var key;
-        for (key in targetSet) {
-            if (target === targetSet) {
+        var i;
+        for (var i = 0; i < targetSet.length; i++) {
+            if (target === targetSet[i]) {
                 return true;
             }
         }
