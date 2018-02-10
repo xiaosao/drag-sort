@@ -23,7 +23,6 @@ class Sortable {
             dragIndex = 0,
             enterIndex,
             movePosition = '';
-
         util._each(childs, function (ele, idx) {
 
             ele.draggable = true;
@@ -31,63 +30,63 @@ class Sortable {
             ele.index = idx;
             ele.flag = true;
             // 获得被拖拽的元素            
-            util._on(container, 'dragstart', 'li', function (e) {
-                util._each(childs, function (ele) {
-                    ele.style.transition = '.5s'
 
-                })
-                this.style.visibility = 'hidden'
-                self.dragEle = this;
-                dragIndex = this.index;
-            });
-
-            util._on(container, 'drag', 'li', self.util._debounce(function () {
-
-
-            }, 10));
-
-            util._on(container, 'dragenter', 'li', function () {
-
-                if (this === self.dragEle) return;
-                if (this.flag === false) {
-                    this.style.transform = `translateY(0)`;
-                    this.flag = true;
-                    movePosition = movePosition === 'down' ? 'up' : 'down'
-                } else {
-                    if (dragIndex < enterIndex) {
-                        this.style.transform = `translateY(-${self.dragEle.offsetHeight}px)`;
-                        this.flag = false;
-                        movePosition = 'down'
-                    } else {
-                        this.style.transform = `translateY(${self.dragEle.offsetHeight}px)`;
-                        this.flag = false;
-                        movePosition = 'up';
-                    }
-                }
-
-                self.enterEle = this;
-                enterIndex = this.index;
-
-            })
-
-            util._on(container, 'dragend', 'li', function () {
-                if (movePosition === 'down') {
-                    util._after(self.dragEle, self.enterEle);
-                } else {
-                    util._before(self.dragEle, self.enterEle);
-                }
-
-                // 恢复拖拽前的状态
-                self.dragEle.style.visibility = 'visible'
-                util._each(childs, function (ele, idx) {
-                    ele.style.transition = '';
-                    ele.style.transform = 'translateY(0)';
-                    ele.index = idx;
-                    ele.flag = true;
-                })
-                self.caculatePosition()
-            })
         })
+        util._on(container, 'dragstart', 'li', function (e) {
+            util._each(childs, function (ele) {
+                ele.style.transition = '.5s'
+
+            })
+            this.style.visibility = 'hidden'
+            // this.style.opacity = 0;
+            self.dragEle = this;
+            dragIndex = this.index;
+        });
+
+
+        util._on(container, 'dragenter', 'li', function () {
+
+            if (this === self.dragEle) return;
+            self.enterEle = this;
+            enterIndex = this.index;
+            if (this.flag === false) {
+                this.style.transform = `translateY(0)`;
+                this.flag = true;
+                movePosition = movePosition === 'down' ? 'up' : 'down'
+            } else {
+                if (dragIndex < enterIndex) {
+                    this.style.transform = `translateY(-${self.dragEle.offsetHeight}px)`;
+                    this.flag = false;
+                    movePosition = 'down'
+                } else {
+                    this.style.transform = `translateY(${self.dragEle.offsetHeight}px)`;
+                    this.flag = false;
+                    movePosition = 'up';
+                }
+            }
+        })
+
+        util._on(container, 'dragend', 'li', function () {
+            if (movePosition === 'down') {
+                util._after(self.dragEle, self.enterEle);
+            } else {
+                util._before(self.dragEle, self.enterEle);
+            }
+
+            // 恢复拖拽前的状态
+            self.dragEle.style.visibility = 'visible'
+            // self.dragEle.style.opacity = '1'
+            util._each(childs, function (ele, idx) {
+                ele.style.transition = '';
+                ele.style.transform = 'translateY(0)';
+                ele.index = idx;
+                ele.flag = true;
+            })
+            self.caculatePosition()
+        })
+
+
+
     }
 
     caculatePosition() {
